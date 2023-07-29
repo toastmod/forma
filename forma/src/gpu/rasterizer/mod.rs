@@ -251,6 +251,7 @@ mod tests {
     use super::*;
 
     use rand::{distributions::Uniform, prelude::*};
+    use wgpu::InstanceDescriptor;
 
     use crate::{
         consts::gpu::{TILE_HEIGHT, TILE_WIDTH},
@@ -266,7 +267,10 @@ mod tests {
         Vec<PixelSegment<TILE_WIDTH, TILE_HEIGHT>>,
         SegmentBufferView,
     ) {
-        let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
+        let instance = wgpu::Instance::new(InstanceDescriptor {
+            backends: wgpu::Backends::PRIMARY,
+            dx12_shader_compiler: wgpu::Dx12Compiler::Fxc,
+        });
         let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::HighPerformance,
             ..Default::default()

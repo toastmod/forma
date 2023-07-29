@@ -20,6 +20,7 @@ use std::{
 };
 
 use forma::{cpu, gpu, prelude::*};
+use wgpu::InstanceDescriptor;
 use winit::{
     dpi::PhysicalSize,
     event::VirtualKeyCode,
@@ -82,8 +83,11 @@ impl CpuRunner {
 
         let layout = LinearLayout::new(width as usize, width as usize * 4, height as usize);
 
-        let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
-        let surface = unsafe { instance.create_surface(&window) };
+        let instance = wgpu::Instance::new(InstanceDescriptor{
+            backends: wgpu::Backends::PRIMARY,
+            dx12_shader_compiler: wgpu::Dx12Compiler::Fxc,
+        });
+        let surface = unsafe { instance.create_surface(&window) }.expect("Could not create surface.");
         let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::LowPower,
             ..Default::default()
@@ -101,6 +105,7 @@ impl CpuRunner {
             height,
             present_mode: wgpu::PresentMode::AutoVsync,
             alpha_mode: wgpu::CompositeAlphaMode::Opaque,
+            view_formats: vec![],
         };
 
         surface.configure(&device, &config);
@@ -252,8 +257,8 @@ impl GpuRunner {
             .build(event_loop)
             .unwrap();
 
-        let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
-        let surface = unsafe { instance.create_surface(&window) };
+        let instance = wgpu::Instance::new(InstanceDescriptor { backends: wgpu::Backends::PRIMARY, dx12_shader_compiler: wgpu::Dx12Compiler::Fxc });
+        let surface = unsafe { instance.create_surface(&window) }.expect("Could not create surface!");
         let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
             power_preference,
             ..Default::default()
@@ -277,7 +282,7 @@ impl GpuRunner {
         ))
         .expect("failed to get device");
 
-        let swap_chain_format = surface.get_supported_formats(&adapter)[0];
+        let swap_chain_format = surface.get_capabilities(&adapter).formats[0];
 
         let config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
@@ -286,6 +291,7 @@ impl GpuRunner {
             height,
             present_mode: wgpu::PresentMode::AutoVsync,
             alpha_mode: wgpu::CompositeAlphaMode::Opaque,
+            view_formats: vec![],
         };
 
         surface.configure(&device, &config);

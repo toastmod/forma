@@ -33,4 +33,4 @@ anyhow = "1.0.66"
 bytemuck = { version = "1.12.3", features = ["derive"] }
 pollster = "0.2.5"
 rand = { version = "0.8.5", features = ["small_rng"] }
-wgpu = "0.14.0"
+wgpu = "0.15.1"

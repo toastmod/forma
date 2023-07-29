@@ -186,6 +186,7 @@ impl Renderer {
                     format: wgpu::TextureFormat::Rgba16Float,
                     usage: wgpu::TextureUsages::STORAGE_BINDING
                         | wgpu::TextureUsages::TEXTURE_BINDING,
+                    view_formats: &[],
                 });
 
                 (texture, width, height)
@@ -224,6 +225,7 @@ impl Renderer {
                 dimension: wgpu::TextureDimension::D2,
                 format: wgpu::TextureFormat::Rgba16Float,
                 usage: wgpu::TextureUsages::COPY_DST | wgpu::TextureUsages::TEXTURE_BINDING,
+                view_formats: &[],
             })
         });
 

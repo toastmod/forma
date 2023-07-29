@@ -32,6 +32,7 @@ use forma::{cpu, gpu, prelude::*};
 use image::RgbaImage;
 use once_cell::sync::OnceCell;
 use serde::Serialize;
+use wgpu::InstanceDescriptor;
 
 pub const WIDTH: f32 = 64.0;
 pub const HEIGHT: f32 = 64.0;
@@ -59,7 +60,10 @@ fn cpu_render(composition: &mut Composition, width: usize, height: usize) -> Rgb
 }
 
 fn gpu_render(composition: &mut Composition, width: usize, height: usize) -> RgbaImage {
-    let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
+    let instance = wgpu::Instance::new(InstanceDescriptor{
+        backends: wgpu::Backends::PRIMARY,
+        dx12_shader_compiler: wgpu::Dx12Compiler::Fxc,
+    });
     let adapter =
         pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions::default()))
             .expect("failed to find an appropriate adapter");
@@ -90,6 +94,7 @@ fn gpu_render(composition: &mut Composition, width: usize, height: usize) -> Rgb
         format: wgpu::TextureFormat::Rgba8UnormSrgb,
         usage: wgpu::TextureUsages::COPY_SRC | wgpu::TextureUsages::RENDER_ATTACHMENT,
         label: None,
+        view_formats: &[],
     };
     let texture = device.create_texture(&texture_desc);
 
